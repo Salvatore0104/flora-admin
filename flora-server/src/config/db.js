@@ -34,16 +34,79 @@ const data = {
 
 // 模拟数据库查询
 async function query(sql, params = []) {
-  // 简化处理，根据SQL返回对应数据
-  if (sql.includes('FROM goods')) {
-    if (sql.includes('COUNT')) return [{ total: data.goods.length }];
-    return data.goods;
+  // 获取表名
+  let table = null;
+  if (sql.includes('FROM goods') || sql.includes('JOIN goods')) table = 'goods';
+  else if (sql.includes('FROM categories') || sql.includes('JOIN categories')) table = 'categories';
+  else if (sql.includes('FROM banners') || sql.includes('JOIN banners')) table = 'banners';
+  else if (sql.includes('FROM coupons') || sql.includes('JOIN coupons')) table = 'coupons';
+  else if (sql.includes('FROM users') || sql.includes('JOIN users')) table = 'users';
+  else if (sql.includes('FROM orders') || sql.includes('JOIN orders')) table = 'orders';
+  
+  if (!table || !data[table]) return [];
+  
+  let result = [...data[table]];
+  
+  // 处理WHERE条件
+  if (sql.includes('WHERE')) {
+    // 支持 id = ? 查询
+    if (params && params.length > 0) {
+      if (table === 'goods' && sql.includes('g.id = ?')) {
+        result = result.filter(g => g.id == params[0]);
+      } else if (table === 'categories' && sql.includes('c.id = ?')) {
+        result = result.filter(c => c.id == params[0]);
+      } else if (table === 'orders' && sql.includes('o.id = ?')) {
+        result = result.filter(o => o.id == params[0]);
+      } else if (params[0] !== undefined) {
+        result = result.filter(item => item.id == params[0]);
+      }
+    }
+    // 状态过滤
+    if (sql.includes('status = 1')) {
+      result = result.filter(item => item.status === 1);
+    }
+    if (sql.includes('status = 0')) {
+      result = result.filter(item => item.status === 0);
+    }
+    // 分类过滤
+    if (params && params.length > 0) {
+      if (table === 'goods' && sql.includes('category_id = ?')) {
+        result = result.filter(g => g.category_id == params[0]);
+      }
+    }
+    // 关键词搜索
+    if (sql.includes('LIKE')) {
+      const keyword = params.find(p => p && p.includes('%'));
+      if (keyword) {
+        const kw = keyword.replace(/%/g, '');
+        result = result.filter(item => 
+          (item.name && item.name.includes(kw)) || 
+          (item.description && item.description.includes(kw))
+        );
+      }
+    }
   }
-  if (sql.includes('FROM categories')) return data.categories;
-  if (sql.includes('FROM banners')) return data.banners;
-  if (sql.includes('FROM coupons')) return data.coupons;
-  if (sql.includes('FROM users')) return data.users;
-  return [];
+  
+  // 处理COUNT
+  if (sql.includes('COUNT')) {
+    return [{ total: result.length }];
+  }
+  
+  // 处理ORDER BY
+  if (sql.includes('ORDER BY')) {
+    if (sql.includes('DESC')) {
+      result.reverse();
+    }
+  }
+  
+  // 处理LIMIT
+  if (sql.includes('LIMIT')) {
+    const limit = params.find(p => typeof p === 'number' && p <= 100) || 10;
+    const offset = params.find((p, i) => typeof p === 'number' && i > 0) || 0;
+    result = result.slice(offset, offset + limit);
+  }
+  
+  return result;
 }
 
 async function insert(table, rowData) {

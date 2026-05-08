@@ -7,14 +7,13 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const config = require('../config');
 
-// 初始化 MinIO 客户端 - 使用 S3v4 API
+// 初始化 MinIO 客户端
 const minioClient = new Minio.Client({
-  endPoint: 'minio.ai.wowidea.top',
+  endPoint: config.minio.endpoint,
   port: 443,
   useSSL: true,
-  accessKey: 'RtsEOoNriDxslz2902jC',
-  secretKey: 'mtVVQDRLQIKxsTfkLHQKfFGWEmStQA9lD3fSnu5m',
-  pathStyle: true // 使用路径风格
+  accessKey: config.minio.accessKey,
+  secretKey: config.minio.secretKey
 });
 
 // 确保 Bucket 存在

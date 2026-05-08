@@ -222,23 +222,26 @@ onMounted(async () => {
   if (isEdit.value) {
     try {
       const res = await request.get(`/goods/detail/${route.query.id}`);
-      const goods = res.goods || res.data;
-      if (goods) {
+      // goods可能是数组或单个对象
+      const goodsData = Array.isArray(res.goods) ? res.goods[0] : (res.goods || res.data);
+      if (goodsData) {
         Object.assign(form, {
-          name: goods.name,
-          category_id: goods.category_id,
-          price: goods.price,
-          original_price: goods.original_price || goods.price,
-          stock: goods.stock,
-          sales: goods.sales || 0,
-          image: goods.image,
-          description: goods.description || '',
-          is_hot: goods.is_hot || 0,
-          is_new: goods.is_new || 0,
-          status: goods.status || 1
+          name: goodsData.name || '',
+          category_id: goodsData.category_id,
+          price: goodsData.price || 0,
+          original_price: goodsData.original_price || goodsData.price || 0,
+          stock: goodsData.stock || 0,
+          sales: goodsData.sales || 0,
+          image: goodsData.image || '',
+          description: goodsData.description || '',
+          is_hot: goodsData.is_hot || 0,
+          is_new: goodsData.is_new || 0,
+          status: goodsData.status !== undefined ? goodsData.status : 1
         });
+        console.log('商品数据加载成功:', form);
       }
-    } catch {
+    } catch (err) {
+      console.error('获取商品信息失败:', err);
       ElMessage.error('获取商品信息失败');
     }
   }

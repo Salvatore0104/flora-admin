@@ -12,7 +12,8 @@ Page({
     quantity: 1,
     showSpec: false,
     cartCount: 0,
-    loading: true
+    loading: true,
+    careTips: []        // 保养说明
   },
 
   onLoad(options) {
@@ -28,14 +29,56 @@ Page({
     this.setData({ loading: true });
     api.getGoodsDetail(id).then(res => {
       const goods = res.goods || {};
+      
+      // 处理字段映射
+      const formattedGoods = {
+        id: goods.id,
+        name: goods.name || '',
+        price: goods.price || 0,
+        originalPrice: goods.original_price || goods.price || 0,
+        stock: goods.stock || 0,
+        sales: goods.sales || 0,
+        image: goods.image || '',
+        desc: goods.description || '',
+        flowerMeaning: goods.flower_meaning || '',
+        category_name: goods.category_name || ''
+      };
+      
+      // 处理商品图片
+      let images = [];
+      if (goods.images && Array.isArray(goods.images)) {
+        images = goods.images;
+      } else if (goods.image) {
+        images = [goods.image];
+      }
+      
+      // 处理详情图片
+      let detailImgs = goods.detailImages || [];
+      if (typeof detailImgs === 'string') {
+        detailImgs = detailImgs ? [detailImgs] : [];
+      }
+      
+      // 处理保养说明
+      let careTips = [];
+      if (goods.care_tips) {
+        careTips = typeof goods.care_tips === 'string' ? goods.care_tips.split(',') : goods.care_tips;
+      } else {
+        // 默认保养说明
+        careTips = ['保持室温15-25°C', '避免阳光直射', '每天换水并剪根', '远离空调和暖气'];
+      }
+      
       this.setData({
-        goods: goods,
-        goodsImages: goods.images || [],
-        detailImages: goods.detailImages || [],
+        goods: formattedGoods,
+        goodsImages: images.length > 0 ? images : ['/images/default-goods.png'],
+        detailImages: detailImgs,
         specs: goods.specs || [],
+        careTips: careTips,
         loading: false
       });
-    }).catch(() => {
+      
+      console.log('商品详情加载成功:', formattedGoods);
+    }).catch((err) => {
+      console.error('加载商品详情失败:', err);
       this.setData({ loading: false });
       wx.showToast({ title: '加载失败', icon: 'none' });
     });
