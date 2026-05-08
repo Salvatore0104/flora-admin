@@ -17,7 +17,11 @@ exports.getGoodsList = async (req, res) => {
       return res.status(500).json({ code: 500, message: '数据库未连接' });
     }
     
-    const offset = (page - 1) * limit;
+    // 确保参数是数字
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const offset = (pageNum - 1) * limitNum;
+    
     let sql = `SELECT g.*, c.name as category_name 
                FROM goods g 
                LEFT JOIN categories c ON g.category_id = c.id 
@@ -43,7 +47,7 @@ exports.getGoodsList = async (req, res) => {
     }
     
     sql += ' LIMIT ? OFFSET ?';
-    params.push(parseInt(limit), parseInt(offset));
+    params.push(limitNum, offset);
     
     const goods = await db.query(sql, params);
     
@@ -59,8 +63,9 @@ exports.getGoodsList = async (req, res) => {
       countParams.push(`%${keyword}%`, `%${keyword}%`);
     }
     const countResult = await db.query(countSql, countParams);
+    const total = (countResult[0] && countResult[0].total) || goods.length;
     
-    res.json({ code: 200, message: 'success', goodsList: goods, total: countResult.total || goods.length });
+    res.json({ code: 200, message: 'success', goodsList: goods, total: total });
   } catch (err) {
     console.error('获取商品列表失败:', err);
     res.status(500).json({ code: 500, message: err.message });
@@ -76,7 +81,7 @@ exports.getGoodsDetail = async (req, res) => {
       return res.status(500).json({ code: 500, message: '数据库未连接' });
     }
     
-    const [goods] = await db.query(
+    const goods = await db.query(
       `SELECT g.*, c.name as category_name 
        FROM goods g 
        LEFT JOIN categories c ON g.category_id = c.id 
@@ -84,7 +89,7 @@ exports.getGoodsDetail = async (req, res) => {
       [id]
     );
     
-    if (goods.length === 0) {
+    if (!goods || goods.length === 0) {
       return res.status(404).json({ code: 404, message: '商品不存在' });
     }
     res.json({ code: 200, goods: goods[0] });

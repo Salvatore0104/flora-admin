@@ -18,7 +18,7 @@ router.get('/list', async (req, res) => {
     }
     
     const categories = await db.query(
-      'SELECT c.*, (SELECT COUNT(*) FROM goods g WHERE g.category_id = c.id AND g.status = 1) as goodsCount FROM categories c ORDER BY c.sort ASC, c.id ASC'
+      'SELECT * FROM categories WHERE status = 1 ORDER BY sort ASC, id ASC'
     );
     res.json({ code: 200, data: categories, categories: categories });
   } catch (err) {
@@ -34,11 +34,11 @@ router.get('/:id', async (req, res) => {
       return res.json({ code: 500, message: '数据库未连接' });
     }
     
-    const [category] = await db.query('SELECT * FROM categories WHERE id = ?', [req.params.id]);
-    if (!category) {
+    const category = await db.query('SELECT * FROM categories WHERE id = ?', [req.params.id]);
+    if (!category || category.length === 0) {
       return res.status(404).json({ code: 404, message: '分类不存在' });
     }
-    res.json({ code: 200, data: category });
+    res.json({ code: 200, data: category[0] });
   } catch (err) {
     res.status(500).json({ code: 500, message: err.message });
   }
@@ -124,8 +124,8 @@ router.delete('/delete/:id', async (req, res) => {
     const { id } = req.params;
     
     // 检查是否有商品使用该分类
-    const [goods] = await db.query('SELECT COUNT(*) as count FROM goods WHERE category_id = ? AND status = 1', [id]);
-    if (goods && goods.count > 0) {
+    const goods = await db.query('SELECT COUNT(*) as count FROM goods WHERE category_id = ? AND status = 1', [id]);
+    if (goods && goods[0] && goods[0].count > 0) {
       return res.status(400).json({ code: 400, message: '该分类下有商品，无法删除' });
     }
     

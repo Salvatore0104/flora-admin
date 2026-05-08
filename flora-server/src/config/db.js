@@ -49,7 +49,16 @@ async function query(sql, params = []) {
   
   // 处理WHERE条件
   if (sql.includes('WHERE')) {
-    // 支持 id = ? 查询
+    // 状态过滤 - 必须先过滤
+    if (sql.includes('status = 1')) {
+      result = result.filter(item => item.status === 1);
+    }
+    if (sql.includes('status = 0')) {
+      result = result.filter(item => item.status === 0);
+    }
+    
+    // 支持 id = ? 查询 - 只有当SQL明确包含这些条件时才过滤
+    // 注意：不要把LIMIT/OFFSET参数当作id过滤
     if (params && params.length > 0) {
       if (table === 'goods' && sql.includes('g.id = ?')) {
         result = result.filter(g => g.id == params[0]);
@@ -57,23 +66,17 @@ async function query(sql, params = []) {
         result = result.filter(c => c.id == params[0]);
       } else if (table === 'orders' && sql.includes('o.id = ?')) {
         result = result.filter(o => o.id == params[0]);
-      } else if (params[0] !== undefined) {
-        result = result.filter(item => item.id == params[0]);
+      } else if (table === 'goods' && sql.includes('category_id = ?')) {
+        // 确保category_id的?不是LIMIT的一部分
+        const idx = sql.indexOf('category_id = ?');
+        const beforeLimit = sql.substring(0, idx);
+        if (!beforeLimit.includes('LIMIT')) {
+          result = result.filter(g => g.category_id == params[0]);
+        }
       }
+      // 如果没有明确的id或category查询条件，不进行默认过滤
     }
-    // 状态过滤
-    if (sql.includes('status = 1')) {
-      result = result.filter(item => item.status === 1);
-    }
-    if (sql.includes('status = 0')) {
-      result = result.filter(item => item.status === 0);
-    }
-    // 分类过滤
-    if (params && params.length > 0) {
-      if (table === 'goods' && sql.includes('category_id = ?')) {
-        result = result.filter(g => g.category_id == params[0]);
-      }
-    }
+    
     // 关键词搜索
     if (sql.includes('LIKE')) {
       const keyword = params.find(p => p && p.includes('%'));
@@ -101,8 +104,26 @@ async function query(sql, params = []) {
   
   // 处理LIMIT
   if (sql.includes('LIMIT')) {
-    const limit = params.find(p => typeof p === 'number' && p <= 100) || 10;
-    const offset = params.find((p, i) => typeof p === 'number' && i > 0) || 0;
+    let limit = 10;
+    let offset = 0;
+    
+    if (params && params.length > 0) {
+      // 找到 LIMIT 值（第一个数字参数）
+      for (let i = 0; i < params.length; i++) {
+        if (typeof params[i] === 'number' && params[i] <= 100) {
+          limit = params[i];
+          break;
+        }
+      }
+      // 找到 OFFSET 值（第二个数字参数）
+      for (let i = 1; i < params.length; i++) {
+        if (typeof params[i] === 'number') {
+          offset = params[i];
+          break;
+        }
+      }
+    }
+    
     result = result.slice(offset, offset + limit);
   }
   
