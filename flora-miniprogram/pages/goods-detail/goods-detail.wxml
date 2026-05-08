@@ -1,0 +1,133 @@
+<!--pages/goods-detail/goods-detail.wxml - 商品详情页-->
+<view class="container">
+  <!-- 商品图片轮播 -->
+  <swiper class="goods-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
+    <swiper-item wx:for="{{goodsImages}}" wx:key="index">
+      <image class="goods-image" src="{{item}}" mode="aspectFill" bindtap="onPreviewImage" data-index="{{index}}"></image>
+    </swiper-item>
+  </swiper>
+
+  <!-- 商品基本信息 -->
+  <view class="goods-info card">
+    <view class="price-row">
+      <view class="price">
+        <text class="price-symbol">¥</text>
+        <text class="price-value">{{goods.price}}</text>
+      </view>
+      <text class="original-price" wx:if="{{goods.originalPrice}}">¥{{goods.originalPrice}}</text>
+      <text class="sales">已售{{goods.sales}}</text>
+    </view>
+    <text class="goods-name">{{goods.name}}</text>
+    <text class="goods-desc">{{goods.desc}}</text>
+    
+    <!-- 花语寓意 -->
+    <view class="flower-meaning" wx:if="{{goods.flowerMeaning}}">
+      <text class="meaning-title">花语寓意</text>
+      <text class="meaning-content">{{goods.flowerMeaning}}</text>
+    </view>
+  </view>
+
+  <!-- 规格选择 -->
+  <view class="spec-section card" bindtap="showSpecPopup">
+    <view class="spec-header">
+      <text class="spec-label">规格</text>
+      <text class="spec-value">{{selectedSpec || '请选择规格'}}</text>
+      <text class="spec-arrow">></text>
+    </view>
+  </view>
+
+  <!-- 配送说明 -->
+  <view class="delivery-section card">
+    <view class="delivery-item">
+      <text class="delivery-icon">🚚</text>
+      <text class="delivery-text">同城配送：最快2小时送达</text>
+    </view>
+    <view class="delivery-item">
+      <text class="delivery-icon">📦</text>
+      <text class="delivery-text">快递配送：全国包邮（偏远地区除外）</text>
+    </view>
+  </view>
+
+  <!-- 商品详情 -->
+  <view class="detail-section card">
+    <text class="section-title">商品详情</text>
+    <view class="detail-content">
+      <image class="detail-image" wx:for="{{detailImages}}" wx:key="index" src="{{item}}" mode="widthFix"></image>
+      
+      <!-- 保养说明 -->
+      <view class="care-tips">
+        <text class="care-title">保养说明</text>
+        <view class="care-item" wx:for="{{careTips}}" wx:key="index">
+          <text class="care-num">{{index + 1}}</text>
+          <text class="care-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 规格选择弹窗 -->
+  <view class="spec-popup {{showSpec ? 'show' : ''}}" bindtap="hideSpecPopup">
+    <view class="spec-content" catchtap="stopPropagation">
+      <view class="spec-header">
+        <image class="spec-image" src="{{goods.image}}" mode="aspectFill"></image>
+        <view class="spec-info">
+          <text class="spec-price">¥{{goods.price}}</text>
+          <text class="spec-stock">库存{{goods.stock}}件</text>
+        </view>
+        <view class="spec-close" bindtap="hideSpecPopup">×</view>
+      </view>
+      
+      <view class="spec-body">
+        <view class="spec-group" wx:for="{{specs}}" wx:key="name">
+          <text class="spec-group-title">{{item.name}}</text>
+          <view class="spec-options">
+            <view 
+              class="spec-option {{subItem.selected ? 'selected' : ''}}" 
+              wx:for="{{item.values}}" 
+              wx:for-item="subItem"
+              wx:key="name"
+              bindtap="onSpecSelect"
+              data-group-index="{{index}}"
+              data-item-index="{{subItemIndex}}"
+            >
+              {{subItem.name}}
+            </view>
+          </view>
+        </view>
+        
+        <view class="quantity-section">
+          <text class="quantity-label">数量</text>
+          <view class="quantity-control">
+            <view class="quantity-btn minus" bindtap="onQuantityMinus">-</view>
+            <text class="quantity-value">{{quantity}}</text>
+            <view class="quantity-btn plus" bindtap="onQuantityPlus">+</view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="spec-footer">
+        <view class="btn-add-cart" bindtap="addToCart">加入购物车</view>
+        <view class="btn-buy-now" bindtap="buyNow">立即购买</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="bottom-left">
+      <view class="bottom-item" bindtap="goHome">
+        <image class="bottom-icon" src="/images/tab-home.png" mode="aspectFit"></image>
+        <text class="bottom-text">首页</text>
+      </view>
+      <view class="bottom-item" bindtap="goCart">
+        <image class="bottom-icon" src="/images/icon-cart.png" mode="aspectFit"></image>
+        <text class="bottom-text">购物车</text>
+        <view class="badge" wx:if="{{cartCount > 0}}">{{cartCount}}</view>
+      </view>
+    </view>
+    <view class="bottom-right">
+      <view class="btn-add-cart" bindtap="showSpecPopup">加入购物车</view>
+      <view class="btn-buy-now" bindtap="buyNow">立即购买</view>
+    </view>
+  </view>
+</view>

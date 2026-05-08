@@ -1,0 +1,42 @@
+/* pages/order/order.wxss */
+.container { padding: 20rpx; background-color: #f5f5f5; min-height: 100vh; }
+
+/* 标签页 */
+.tabs { display: flex; background-color: white; border-radius: 12rpx; margin-bottom: 20rpx; padding: 8rpx; overflow-x: auto; }
+.tab { flex-shrink: 0; padding: 16rpx 24rpx; font-size: 26rpx; color: #666; border-radius: 8rpx; white-space: nowrap; }
+.tab.active { background-color: #333333; color: white; font-weight: 500; }
+
+/* 订单列表 */
+.order-list { padding-bottom: 20rpx; }
+
+.order-item { margin-bottom: 20rpx; border-radius: 16rpx; overflow: hidden; }
+
+.order-header { display: flex; justify-content: space-between; align-items: center; padding: 24rpx; background-color: white; border-bottom: 1rpx solid #f5f5f5; }
+.order-no { font-size: 24rpx; color: #999; }
+.order-status { font-size: 26rpx; color: #E91E63; font-weight: 500; }
+
+/* 商品列表 */
+.order-goods { display: flex; padding: 24rpx; background-color: white; border-bottom: 1rpx solid #f5f5f5; }
+.goods-image { width: 160rpx; height: 160rpx; border-radius: 12rpx; background-color: #f5f5f5; flex-shrink: 0; }
+.goods-info { flex: 1; margin-left: 20rpx; }
+.goods-name { font-size: 28rpx; color: #333; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.goods-spec { font-size: 24rpx; color: #999; margin-top: 8rpx; display: block; }
+.goods-price-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16rpx; }
+.goods-price { font-size: 30rpx; color: #E91E63; font-weight: 500; }
+.goods-quantity { font-size: 24rpx; color: #999; }
+
+/* 订单底部 */
+.order-footer { padding: 24rpx; background-color: white; display: flex; justify-content: space-between; align-items: center; }
+.order-total { font-size: 26rpx; color: #333; }
+.order-total text { color: #E91E63; font-weight: 600; }
+
+.order-actions { display: flex; gap: 16rpx; }
+.action-btn { padding: 12rpx 30rpx; border-radius: 30rpx; font-size: 24rpx; }
+.action-btn:not(.outline) { background: linear-gradient(135deg, #E91E63, #F48FB1); color: white; }
+.action-btn.outline { border: 1rpx solid #ddd; color: #666; background-color: white; }
+
+/* 空状态 */
+.empty-state { display: flex; flex-direction: column; align-items: center; padding-top: 200rpx; }
+.empty-image { width: 300rpx; height: 300rpx; margin-bottom: 40rpx; }
+.empty-text { font-size: 32rpx; color: #333; margin-bottom: 16rpx; }
+.go-shopping { background: #333333; color: white; padding: 20rpx 80rpx; border-radius: 44rpx; font-size: 28rpx; margin-top: 40rpx; }

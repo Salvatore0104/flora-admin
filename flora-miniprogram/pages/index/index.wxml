@@ -1,0 +1,80 @@
+<!--pages/index/index.wxml - Flora花店首页-->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <image class="search-icon" src="/images/icon-search-bar.png" mode="aspectFit"></image>
+      <input class="search-input" placeholder="搜索鲜花、花束、绿植..." placeholder-class="search-placeholder" bindinput="onSearchInput" bindconfirm="onSearch" />
+    </view>
+  </view>
+
+  <!-- 轮播图 -->
+  <view class="banner-section">
+    <swiper class="banner-swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
+      <block wx:for="{{banners}}" wx:key="id">
+        <swiper-item>
+          <image class="banner-image" src="{{item.image}}" mode="aspectFill" bindtap="onBannerTap" data-id="{{item.id}}"></image>
+        </swiper-item>
+      </block>
+    </swiper>
+  </view>
+
+  <!-- 分类导航 -->
+  <view class="category-nav">
+    <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="onCategoryTap" data-id="{{item.id}}">
+      <image class="category-icon" src="{{item.icon}}" mode="aspectFit"></image>
+      <text class="category-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 秒杀专区 -->
+  <view class="seckill-section card" wx:if="{{seckillGoods.length > 0}}">
+    <view class="section-header">
+      <view class="section-title-wrap">
+        <text class="section-title">限时秒杀</text>
+        <text class="seckill-timer">距结束 {{countdown}}</text>
+      </view>
+      <text class="section-more" bindtap="goSeckill">查看更多 ></text>
+    </view>
+    <scroll-view class="seckill-scroll" scroll-x="{{true}}">
+      <view class="seckill-item" wx:for="{{seckillGoods}}" wx:key="id" bindtap="goGoodsDetail" data-id="{{item.id}}">
+        <image class="seckill-image" src="{{item.image}}" mode="aspectFill"></image>
+        <text class="seckill-price">¥{{item.seckillPrice}}</text>
+        <text class="seckill-original-price">¥{{item.originalPrice}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 精选推荐 -->
+  <view class="recommend-section">
+    <view class="section-header">
+      <text class="section-title">精选鲜花</text>
+      <text class="section-subtitle">为您精心挑选</text>
+    </view>
+    
+    <view class="goods-grid">
+      <view class="goods-card" wx:for="{{goodsList}}" wx:key="id" bindtap="goGoodsDetail" data-id="{{item.id}}">
+        <image class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="goods-info">
+          <text class="goods-name">{{item.name}}</text>
+          <text class="goods-desc">{{item.desc}}</text>
+          <view class="goods-price-row">
+            <view class="goods-price">
+              <text class="price-symbol">¥</text>
+              <text class="price-value">{{item.price}}</text>
+            </view>
+            <text class="goods-sales">已售{{item.sales}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="loading-more" wx:if="{{!noMore}}">
+    <text>加载中...</text>
+  </view>
+  <view class="loading-more" wx:else>
+    <text>— 已经到底了 —</text>
+  </view>
+</view>

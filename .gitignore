@@ -1,0 +1,41 @@
+# 依赖
+node_modules/
+package-lock.json
+
+# 构建输出
+dist/
+build/
+
+# 日志
+*.log
+logs/
+
+# 环境配置
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 小程序
+flora-miniprogram/node_modules/
+
+# 数据库
+*.db
+*.sqlite
+
+# 临时文件
+*.tmp
+*.bak
+*.orig
+
+# MinIO本地缓存
+.flora-minio/

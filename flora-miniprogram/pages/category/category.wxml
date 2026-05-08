@@ -1,0 +1,87 @@
+<!--pages/category/category.wxml - 分类页-->
+<view class="container">
+  <!-- 顶部搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <image class="search-icon" src="/images/icon-search-bar.png" mode="aspectFit"></image>
+      <input class="search-input" placeholder="搜索商品" placeholder-class="search-placeholder" bindinput="onSearchInput" bindconfirm="onSearch" />
+    </view>
+  </view>
+
+  <!-- 分类内容区 -->
+  <view class="category-content">
+    <!-- 左侧分类栏 -->
+    <scroll-view class="left-category" scroll-y="{{true}}">
+      <view 
+        class="category-item {{currentCategory === index ? 'active' : ''}}" 
+        wx:for="{{categories}}" 
+        wx:key="id"
+        bindtap="onCategorySelect"
+        data-index="{{index}}"
+      >
+        <text>{{item.name}}</text>
+      </view>
+    </scroll-view>
+
+    <!-- 右侧商品区 -->
+    <scroll-view class="right-goods" scroll-y="{{true}}">
+      <!-- 分类横幅 -->
+      <view class="category-banner">
+        <image class="banner-image" src="{{categories[currentCategory].banner}}" mode="aspectFill"></image>
+      </view>
+
+      <!-- 子分类 -->
+      <view class="sub-category" wx:if="{{categories[currentCategory].children}}">
+        <view 
+          class="sub-item" 
+          wx:for="{{categories[currentCategory].children}}" 
+          wx:key="id"
+          bindtap="onSubCategoryTap"
+          data-id="{{item.id}}"
+        >
+          <image class="sub-icon" src="{{item.icon}}" mode="aspectFit"></image>
+          <text class="sub-name">{{item.name}}</text>
+        </view>
+      </view>
+
+      <!-- 排序栏 -->
+      <view class="sort-bar">
+        <view class="sort-item {{currentSort === 'default' ? 'active' : ''}}" bindtap="onSortChange" data-sort="default">
+          <text>综合</text>
+        </view>
+        <view class="sort-item {{currentSort === 'sales' ? 'active' : ''}}" bindtap="onSortChange" data-sort="sales">
+          <text>销量</text>
+        </view>
+        <view class="sort-item {{currentSort === 'price-asc' ? 'active' : ''}}" bindtap="onSortChange" data-sort="price-asc">
+          <text>价格↑</text>
+        </view>
+        <view class="sort-item {{currentSort === 'price-desc' ? 'active' : ''}}" bindtap="onSortChange" data-sort="price-desc">
+          <text>价格↓</text>
+        </view>
+      </view>
+
+      <!-- 商品列表 -->
+      <view class="goods-list">
+        <view class="goods-item" wx:for="{{goodsList}}" wx:key="id" bindtap="goGoodsDetail" data-id="{{item.id}}">
+          <image class="goods-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="goods-info">
+            <text class="goods-name">{{item.name}}</text>
+            <text class="goods-desc">{{item.desc}}</text>
+            <view class="goods-price-row">
+              <view class="goods-price">
+                <text class="price-symbol">¥</text>
+                <text class="price-value">{{item.price}}</text>
+              </view>
+              <text class="goods-sales">已售{{item.sales}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{goodsList.length === 0}}">
+        <text class="text">暂无商品</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>
